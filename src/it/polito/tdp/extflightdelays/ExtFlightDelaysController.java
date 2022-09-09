@@ -5,8 +5,11 @@
 package it.polito.tdp.extflightdelays;
 
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.extflightdelays.model.Adiacenza;
 import it.polito.tdp.extflightdelays.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,6 +19,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class ExtFlightDelaysController {
+	
 	private Model model;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
@@ -47,7 +51,17 @@ public class ExtFlightDelaysController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	cmbBoxStati.getItems().clear();
+  
+    	this.model.creaGrafo();
+    	txtResult.setText("Grafo creato!\n");
+    	txtResult.appendText("# Vertici : " + this.model.getNumVertici() + "\n");
+    	txtResult.appendText("# Archi : " + this.model.getNumArchi() + "\n");
+    	
+    	// Dopo aver creato il grafo, possiamo popolare la tendina
+    	List<String> stati = this.model.getAllVertici();
+    	Collections.sort(stati);
+    	cmbBoxStati.getItems().addAll(stati);
     }
 
     @FXML
@@ -57,7 +71,16 @@ public class ExtFlightDelaysController {
 
     @FXML
     void doVisualizzaVelivoli(ActionEvent event) {
-
+    	String stato = cmbBoxStati.getValue();
+    	if (stato == null) {
+    		txtResult.appendText("Per favore selezionare uno stato dalla tendina!\n");
+    		return;
+    	}
+    	List<Adiacenza> connessi = this.model.getStatiConnessi(stato);
+    	txtResult.appendText("Gli stati connessi allo stato '" + stato + "' sono: \n");
+    	for (Adiacenza a : connessi) {
+    		txtResult.appendText(a.getStato2() + " - " + a.getPeso() + "\n");
+    	}
     }
     
     public void setModel(Model model) {
